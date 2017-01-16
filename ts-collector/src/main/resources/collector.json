@@ -1,13 +1,14 @@
 {
   "influx": {
-    "dbname": "demo",
+    "dbnames": [
+      "demo"
+    ],
     "defaultHost": "localhost",
     "defaultPort": 8086,
-    "maxPoolSize" : 5,
-    "maxRowLimit" : 10000
+    "maxPoolSize": 5,
+    "maxRowLimit": 10000
   },
-  "http" : {
-    "port" : 9090
+  "http": {
+    "port": 9090
   }
-
 }

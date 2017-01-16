@@ -12,7 +12,8 @@ import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
 
 /**
- *
+ * Verticle to accept measurement data via http. Incoming data is forwarded directly onto the event bus to the
+ * consumers listenting at the same path address as specified in the URL.
  */
 public class HttpServerVerticle extends AbstractVerticle {
 
@@ -35,9 +36,9 @@ public class HttpServerVerticle extends AbstractVerticle {
 
         vertx.createHttpServer()
              .requestHandler(router::accept)
-             .listen(config().getInteger("http.port", 4040), result -> {
+             .listen(config().getInteger("port", 4040), result -> {
                  if (result.succeeded()) {
-                     LOG.info("Server listening on port {}", config().getInteger("http.port", 4040));
+                     LOG.info("Server listening on port {}", config().getInteger("port", 4040));
                      startFuture.complete();
                  } else {
                      startFuture.fail("FAIL" + result.cause());
