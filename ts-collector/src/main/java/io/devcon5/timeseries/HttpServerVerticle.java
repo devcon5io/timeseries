@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 import io.vertx.core.buffer.Buffer;
+import io.vertx.core.eventbus.Message;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.RoutingContext;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -22,17 +23,19 @@ public class HttpServerVerticle extends AbstractVerticle {
     @Override
     public void start(Future<Void> startFuture) throws Exception {
 
-
         final Router router = Router.router(vertx);
         router.route().handler(BodyHandler.create());
         router.route("/").handler(this::ping);
 
         //route all other messages to the event bus
+        //TODO support other dataformats than just JSON
         router.post("/*")
-              .handler(ctx -> vertx.eventBus()
-                                   .<Buffer>send(ctx.normalisedPath(),
-                                         ctx.getBody(),
-                                         reply -> sendResponse(ctx, reply.result().body())));
+              .handler(ctx -> {
+                  LOG.debug("> POST {}\n{}", ctx.normalisedPath(), ctx.getBodyAsJson());
+                  vertx.eventBus()
+                          .<Buffer>publish(ctx.normalisedPath(), ctx.getBodyAsJson());
+                  ctx.response().setStatusCode(204).end();
+              });
 
         vertx.createHttpServer()
              .requestHandler(router::accept)
@@ -46,9 +49,11 @@ public class HttpServerVerticle extends AbstractVerticle {
              });
     }
 
-    protected void sendResponse(RoutingContext ctx, Buffer response) {
+    protected void sendResponse(RoutingContext ctx, Message<Buffer> response) {
 
-        ctx.response().putHeader("content-type", "application/obj; charset=utf-8").end(response);
+        if (response != null) {
+            ctx.response().putHeader("content-type", "application/obj; charset=utf-8").end(response.body());
+        }
     }
 
     /////////////// Helper methods

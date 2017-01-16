@@ -1,14 +1,16 @@
 package io.devcon5.timeseries;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
+import org.slf4j.Logger;
 
 import io.vertx.core.http.HttpClientOptions;
 import io.vertx.core.json.JsonObject;
 import io.vertx.rxjava.core.AbstractVerticle;
 import io.vertx.rxjava.core.http.HttpClient;
-import org.slf4j.LoggerFactory;
 
 /**
  * The influx Verticle accepts a JSON datapoint of the format:
@@ -27,10 +29,11 @@ import org.slf4j.LoggerFactory;
  *      timestamp: unixTimeStampInNanos
  *     }
  * </pre>
+ * If addressed directly, use the URI path '/store/{dbname}' to store a datapoint in a particular database.
  */
 public class InfluxVerticle extends AbstractVerticle {
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(InfluxVerticle.class);
+    private static final Logger LOG = getLogger(InfluxVerticle.class);
 
     private final Pattern SPECIAL_CHARS = Pattern.compile("([\\s,=\"])");
 
@@ -38,16 +41,31 @@ public class InfluxVerticle extends AbstractVerticle {
 
     @Override
     public void start() throws Exception {
-        this.http = vertx.createHttpClient(new HttpClientOptions(config()));
-        config().getJsonArray("dbnames").forEach(dbname -> registerConsumer((String) dbname));
-
+        JsonObject config = config();
+        this.http = vertx.createHttpClient(new HttpClientOptions(config));
+        if(config.containsKey("dbnames")){
+            config.getJsonArray("dbnames").forEach(dbname -> registerConsumer((String) dbname));
+            LOG.info("InfluxDB timeseries verticle started");
+        } else {
+            LOG.warn("No InfluxDB name configured");
+        }
     }
 
     private void registerConsumer(final String dbname) {
-
+        LOG.debug("Registering handler for {} database", dbname);
+        if(LOG.isTraceEnabled()){
+            vertx.eventBus().<JsonObject>consumer("/store/" + dbname, msg -> {
+                LOG.trace("received datapoint for db '{}': {}", dbname, msg.body());
+            });
+        }
         vertx.eventBus().<JsonObject>consumer("/store/" + dbname).bodyStream()
                                                                  .toObservable()
-                                                                 .buffer(config().getInteger("maxRowLimit", 10000))
+                                                                 .buffer(config().getInteger("maxRowLimit", 1000))
+                                                                 .map(this::joinDataPoints)
+                                                                 .subscribe(result -> sendDatapoint(dbname, result));
+        vertx.eventBus().<JsonObject>consumer("/influx/write?db=" + dbname).bodyStream()
+                                                                 .toObservable()
+                                                                 .buffer(config().getInteger("maxRowLimit", 1000))
                                                                  .map(this::joinDataPoints)
                                                                  .subscribe(result -> sendDatapoint(dbname, result));
     }

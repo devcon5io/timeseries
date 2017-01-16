@@ -2,9 +2,10 @@ package io.devcon5.timeseries;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
+import org.slf4j.Logger;
+
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
-import org.slf4j.Logger;
 
 /**
  * Main Verticle to launch the collector and deploys functional verticles.
