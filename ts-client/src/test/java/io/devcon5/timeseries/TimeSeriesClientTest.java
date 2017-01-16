@@ -49,7 +49,7 @@ public class TimeSeriesClientTest {
         client.store(new Datapoint().addValue("test", 147));
         client.store(new Datapoint().addValue("test", 165));
 
-        async.awaitSuccess(500);
+        async.awaitSuccess(2000);
 
         List<JsonObject> dps = this.testRecorder.getMessages();
         context.assertFalse(dps.isEmpty());
