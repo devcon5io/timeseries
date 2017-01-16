@@ -18,15 +18,19 @@ public class MainVerticle extends AbstractVerticle {
     public void start() throws Exception {
 
         LOG.info("Deploying Modules");
-        config().getJsonArray("modules")
-                .stream()
-                .map(m -> (JsonObject) m)
-                .forEach(m -> vertx.deployVerticle(m.getString("verticle"),
-                                                   new DeploymentOptions().setConfig(m.getJsonObject("config")),
-                                                   result -> LOG.info("Deployed module {}", m.getString("verticle"))));
+        final JsonObject config = config();
+        if (config.containsKey("modules")) {
+            config.getJsonArray("modules")
+                  .stream()
+                  .map(m -> (JsonObject) m)
+                  .forEach(m -> vertx.deployVerticle(m.getString("verticle"),
+                                                     new DeploymentOptions().setConfig(m.getJsonObject("config")),
+                                                     result -> LOG.info("Deployed module {}",
+                                                                        m.getString("verticle"))));
+        }
 
         vertx.deployVerticle(HttpServerVerticle.class.getName(),
-                             new DeploymentOptions().setConfig(config().getJsonObject("http")));
+                             new DeploymentOptions().setConfig(config.getJsonObject("http")));
 
     }
 }
