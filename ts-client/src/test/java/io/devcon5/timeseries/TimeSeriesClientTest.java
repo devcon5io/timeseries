@@ -31,15 +31,16 @@ public class TimeSeriesClientTest {
     @Before
     public void setUp(TestContext context) throws Exception {
 
-        try(ServerSocket s = new ServerSocket(0)){
+        try (ServerSocket s = new ServerSocket(0)) {
             defaultPort = s.getLocalPort();
         }
 
-        final JsonObject config = new JsonObject().put("http", new JsonObject().put("port", defaultPort));
+        final JsonObject config = new JsonObject().put("port", defaultPort);
 
         final Vertx vertx = rule.vertx();
-        vertx.deployVerticle(MainVerticle.class.getName(), new DeploymentOptions().setConfig(config),
-                context.asyncAssertSuccess());
+        vertx.deployVerticle(HttpServerVerticle.class.getName(),
+                             new DeploymentOptions().setConfig(config),
+                             context.asyncAssertSuccess());
     }
 
     @Test
@@ -67,6 +68,7 @@ public class TimeSeriesClientTest {
     }
 
     private void assertMeasure(TestContext context, JsonObject measure, Long value) {
+
         context.assertEquals("measure", measure.getString("name"));
         context.assertNotNull(measure.getLong("timestamp"));
         context.assertTrue(measure.getJsonObject("tags").isEmpty());
