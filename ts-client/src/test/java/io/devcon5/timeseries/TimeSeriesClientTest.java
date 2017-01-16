@@ -1,10 +1,7 @@
 package io.devcon5.timeseries;
 
+import java.net.ServerSocket;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
@@ -13,6 +10,10 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  *
@@ -29,6 +30,10 @@ public class TimeSeriesClientTest {
 
     @Before
     public void setUp(TestContext context) throws Exception {
+
+        try(ServerSocket s = new ServerSocket(0)){
+            defaultPort = s.getLocalPort();
+        }
 
         final JsonObject config = new JsonObject().put("http", new JsonObject().put("port", defaultPort));
 
