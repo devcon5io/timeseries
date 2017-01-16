@@ -29,7 +29,8 @@ import io.vertx.rxjava.core.http.HttpClient;
  *      timestamp: unixTimeStampInNanos
  *     }
  * </pre>
- * If addressed directly, use the URI path '/store/{dbname}' to store a datapoint in a particular database.
+ * The InfluxVerticle can be addressed via the general '/store/{dbname}' address or via the
+ * '/influc/write?db={dbname}' address. Both can be used as URI paths when being send via HTTP.
  */
 public class InfluxVerticle extends AbstractVerticle {
 
