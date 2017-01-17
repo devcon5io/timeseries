@@ -5,11 +5,11 @@
     <parent>
 		<groupId>io.devcon5.timeseries</groupId>
 		<artifactId>timeseries</artifactId>
-        <version>1.1</version>
+        <version>1.2-SNAPSHOT</version>
 	</parent>
 
     <artifactId>ts-collector</artifactId>
-    <version>1.1</version>
+    <version>1.2-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
