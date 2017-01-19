@@ -1,13 +1,18 @@
 {
-  "influx": {
-    "dbnames": [
-      "test"
-    ],
-    "defaultHost": "localhost",
-    "defaultPort": 8086,
-    "maxPoolSize": 5,
-    "maxRowLimit": 1
-  },
+  "modules": [
+    {
+      "verticle": "java:io.devcon5.timeseries.InfluxVerticle",
+      "config": {
+        "dbnames": [
+          "test"
+        ],
+        "defaultHost": "localhost",
+        "defaultPort": 8086,
+        "maxPoolSize": 5,
+        "maxRowLimit": 1
+      }
+    }
+  ],
   "http": {
     "port": 9090
   }

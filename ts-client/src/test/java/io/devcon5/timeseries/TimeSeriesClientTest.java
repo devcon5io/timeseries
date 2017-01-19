@@ -1,10 +1,7 @@
 package io.devcon5.timeseries;
 
+import java.net.ServerSocket;
 import java.util.List;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
@@ -13,6 +10,10 @@ import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.RunTestOnContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
 
 /**
  *
@@ -30,11 +31,16 @@ public class TimeSeriesClientTest {
     @Before
     public void setUp(TestContext context) throws Exception {
 
-        final JsonObject config = new JsonObject().put("http", new JsonObject().put("port", defaultPort));
+        try (ServerSocket s = new ServerSocket(0)) {
+            defaultPort = s.getLocalPort();
+        }
+
+        final JsonObject config = new JsonObject().put("port", defaultPort);
 
         final Vertx vertx = rule.vertx();
-        vertx.deployVerticle(MainVerticle.class.getName(), new DeploymentOptions().setConfig(config),
-                context.asyncAssertSuccess());
+        vertx.deployVerticle(HttpServerVerticle.class.getName(),
+                             new DeploymentOptions().setConfig(config),
+                             context.asyncAssertSuccess());
     }
 
     @Test
@@ -49,7 +55,7 @@ public class TimeSeriesClientTest {
         client.store(new Datapoint().addValue("test", 147));
         client.store(new Datapoint().addValue("test", 165));
 
-        async.awaitSuccess(500);
+        async.awaitSuccess(2000);
 
         List<JsonObject> dps = this.testRecorder.getMessages();
         context.assertFalse(dps.isEmpty());
@@ -62,6 +68,7 @@ public class TimeSeriesClientTest {
     }
 
     private void assertMeasure(TestContext context, JsonObject measure, Long value) {
+
         context.assertEquals("measure", measure.getString("name"));
         context.assertNotNull(measure.getLong("timestamp"));
         context.assertTrue(measure.getJsonObject("tags").isEmpty());
