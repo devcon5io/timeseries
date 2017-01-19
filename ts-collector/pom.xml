@@ -83,6 +83,42 @@
                     </execution>
                 </executions>
             </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <version>2.7</version>
+                <executions>
+                    <execution>
+                        <id>deploy-fatjar</id>
+                        <goals>
+                            <goal>deploy-file</goal>
+                        </goals>
+                        <phase>deploy</phase>
+                        <configuration>
+                            <classifier>fatjar</classifier>
+                            <file>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar</file>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-install-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <version>2.5.2</version>
+                <executions>
+                    <execution>
+                        <id>install-fatjar</id>
+                        <goals>
+                            <goal>install-file</goal>
+                        </goals>
+                        <phase>install</phase>
+                        <configuration>
+                            <classifier>fatjar</classifier>
+                            <file>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar</file>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
