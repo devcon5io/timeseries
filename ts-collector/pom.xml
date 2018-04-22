@@ -95,7 +95,7 @@
                         <phase>deploy</phase>
                         <configuration>
                             <classifier>fatjar</classifier>
-                            <file>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar</file>
+                            <file>${project.build.directory}/${project.artifactId}-${project.version}-full.jar</file>
                         </configuration>
                     </execution>
                 </executions>
@@ -113,7 +113,7 @@
                         <phase>install</phase>
                         <configuration>
                             <classifier>fatjar</classifier>
-                            <file>${project.build.directory}/${project.artifactId}-${project.version}-fat.jar</file>
+                            <file>${project.build.directory}/${project.artifactId}-${project.version}-full.jar</file>
                         </configuration>
                     </execution>
                 </executions>
